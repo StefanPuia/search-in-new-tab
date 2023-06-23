@@ -50,5 +50,5 @@ const createContextMenuOption = (tld) => {
 };
 
 const locale = (tld) => {
-  return tldLocales[tld];
+  return tldLocales[tld] ?? tld;
 };

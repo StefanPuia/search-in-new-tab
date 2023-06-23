@@ -3,17 +3,29 @@
 // found in the LICENSE file.
 
 // TLD: top level domain; the "com" in "google.com"
-import { tldLocales, defaultTld } from "./locales.js";
+import { tldLocales, defaultTld, allTlds } from "./locales.js";
 
 createForm().catch(console.error);
 
 async function createForm() {
   const { defaultTld: storedTld = Object.keys(tldLocales) } =
     await chrome.storage.sync.get("defaultTld");
-
-  console.log(storedTld);
-
   const form = document.getElementById("form");
+  createRadioButtons(form, storedTld);
+  createAllTldsDropdown(form, storedTld);
+}
+
+async function handleCheckboxClick(event) {
+  const checkbox = event.target;
+  const tld = checkbox.value;
+  const enabled = checkbox.checked;
+  console.log(tld, enabled);
+  if (enabled) {
+    await chrome.storage.sync.set({ defaultTld: tld });
+  }
+}
+
+const createRadioButtons = (form, storedTld) => {
   for (const [tld, locale] of Object.entries(tldLocales)) {
     const label = document.createElement("label");
 
@@ -39,14 +51,32 @@ async function createForm() {
 
     form.appendChild(div);
   }
-}
+};
 
-async function handleCheckboxClick(event) {
-  const checkbox = event.target;
-  const tld = checkbox.value;
-  const enabled = checkbox.checked;
-  console.log(tld, enabled);
-  if (enabled) {
-    await chrome.storage.sync.set({ defaultTld: tld });
+const createAllTldsDropdown = (form, storedTld) => {
+  const select = document.createElement("select");
+  const topOption = document.createElement("option");
+  topOption.disabled = "disabled";
+  topOption.textContent = "More domains";
+  topOption.selected = "selected";
+  select.appendChild(topOption);
+
+  for (const tld of allTlds) {
+    const option = document.createElement("option");
+    option.value = tld;
+    option.textContent = `google.${tld}`;
+    if (!!storedTld && tld === storedTld) {
+      option.selected = "selected";
+    }
+    select.appendChild(option);
   }
-}
+
+  select.addEventListener("change", () => {
+    const value = select.value;
+    if (value) {
+      chrome.storage.sync.set({ defaultTld: value }).catch(console.error);
+    }
+  });
+
+  form.appendChild(select);
+};
