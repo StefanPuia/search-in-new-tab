@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Search in a new tab",
+  "version": "1.0.0",
+  "short_name": "Search",
+  "description": "Searches for the selected text on Google by opening a new tab, instead of the new Chrome side panel.",
+  "permissions": ["contextMenus", "tabs", "storage"],
+  "icons": {
+    "16": "assets/search.png",
+    "48": "assets/search.png",
+    "128": "assets/search.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  }
+}
